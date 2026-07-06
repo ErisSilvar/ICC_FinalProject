@@ -1,0 +1,190 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char nomes[10][50];     // Até 10 nomes de ate 49 caracteres
+    char emails[10][30];    // Até 10 emails de ate 29 caracteres
+    float salarios[10];     // Até 10 salários
+    int qtd = 0;             // Quantos funcionarios ja foram cadastrados
+    int opcao;                // Opcao escolhida no menu
+
+    do {
+        printf(">>> SISTEMA DE CADASTRO DE USUARIOS <<<\n");
+        printf("\tBy: Eris e Thiago");
+        printf("\n\n================ MENU ================\n");
+        printf("1. Cadastrar Novo Funcionario\n");
+        printf("2. Mostrar Todos os Dados\n");
+        printf("3. Buscar Dados de uma Pessoa Especifica\n");
+        printf("4. Mostrar Maior Salario\n");
+        printf("5. Mostrar Media Salarial\n");
+        printf("6. Sair\n");
+        printf("=======================================\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                /* A função cadastrar() devolve o novo total de funcionarios,
+                   que substitui o valor antigo de qtd no main()   */
+                qtd = cadastrar(nomes, emails, salarios, qtd);
+                break;
+
+            case 2:
+                mostrarTodos(nomes, emails, salarios, qtd);
+                break;
+
+            case 3:
+                buscarPessoa(nomes, emails, salarios, qtd);
+                break;
+
+            case 4:
+                maiorSalario(nomes, salarios, qtd);
+                break;
+
+            case 5:
+                mediaSalarial(salarios, qtd);
+                break;
+
+            case 6:
+                printf("Encerrando o programa...\n");
+                break;
+
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+
+    } while (opcao != 6);   /* Repete o menu ate o usuario escolher sair */
+
+    return 0;
+}
+
+
+/* ==================================================================
+   A função recebe o "qtd" atual (copia local, apenas leitura), cadastra
+   um funcionario na posicao [qtd] das matrizes/vetor (se houver espaco)
+   e retorna o novo valor de qtd para o main() atualizar sua variavel.
+   ================================================================== */
+int cadastrar(char nomes[][50], char emails[][30], float salarios[], int qtd) {
+
+    /* Validacao: agenda cheia (maximo de 10 funcionarios) */
+    if (qtd >= 10) {
+        printf("Agenda cheia! Nao e possivel cadastrar mais funcionarios.\n");
+        return qtd;  /* devolve o valor sem nenhuma alteracao */
+    }
+
+    printf("--- Cadastro de Funcionario ---\n");
+
+    printf("Nome completo: ");
+    scanf(" %[^\n]", nomes[qtd]);   /* %[^\n] le a linha toda, com espacos */
+
+    printf("Email: ");
+    scanf(" %[^\n]", emails[qtd]);
+
+    printf("Salario: ");
+    scanf("%f", &salarios[qtd]);
+
+    qtd++;   /* incrementa a copia local do contador */
+
+    printf("Funcionario cadastrado com sucesso!\n");
+
+    return qtd;   /* devolve o valor JA atualizado para o main() */
+}
+
+
+/* ==================================================================
+   A função apenas LE os dados (nao precisa alterar qtd, por isso
+   continua sendo void e recebe qtd normalmente, sem retorno).
+   ================================================================== */
+void mostrarTodos(char nomes[][50], char emails[][30], float salarios[], int qtd) {
+
+    /* Validacao: se nao ha ninguem cadastrado ainda */
+    if (qtd == 0) {
+        printf("Nenhum funcionario cadastrado ainda.\n");
+        return;
+    }
+
+    printf("--- Lista de Funcionarios Cadastrados ---\n");
+    for (int i = 0; i < qtd; i++) {
+        printf("Indice: %d | Nome: %s | Email: %s | Salario: R$ %.2f\n",
+               i, nomes[i], emails[i], salarios[i]);
+    }
+}
+
+
+/* ==================================================================
+   A função usa o strcmp() da biblioteca <string.h> para comparar o
+   nome digitado com cada nome ja cadastrado. strcmp retorna 0 quando
+   as strings sao IDENTICAS.
+   ================================================================== */
+void buscarPessoa(char nomes[][50], char emails[][30], float salarios[], int qtd) {
+
+    if (qtd == 0) {
+        printf("Nenhum funcionario cadastrado ainda.\n");
+        return;
+    }
+
+    char nomeBusca[50];
+    printf("Digite o nome completo para buscar: ");
+    scanf(" %[^\n]", nomeBusca);
+
+    int encontrado = 0;   /* 0 = nao encontrado, 1 = encontrado */
+
+    for (int i = 0; i < qtd; i++) {
+        if (strcmp(nomes[i], nomeBusca) == 0) {
+            printf("--- Funcionario Encontrado ---\n");
+            printf("Nome: %s | Email: %s | Salario: R$ %.2f\n",
+                   nomes[i], emails[i], salarios[i]);
+            encontrado = 1;
+            break;   /* Caso não tiver achado, encerra */
+        }
+    }
+
+    if (!encontrado) {
+        printf("Funcionario nao encontrado.\n");
+    }
+}
+
+
+/* ==================================================================
+   A função percorre o vetor de salarios guardando o INDICE do maior
+   valor encontrado ate o momento. Como os vetores sao paralelos, o
+   mesmo indice serve para acessar o nome correspondente.
+   ================================================================== */
+void maiorSalario(char nomes[][50], float salarios[], int qtd) {
+
+    if (qtd == 0) {
+        printf("Nenhum funcionario cadastrado ainda.\n");
+        return;
+    }
+
+    int indiceMaior = 0;   /* Assume que o primeiro e o maior, no inicio */
+
+    for (int i = 1; i < qtd; i++) {
+        if (salarios[i] > salarios[indiceMaior]) {
+            indiceMaior = i;   /* Caso for um salario maior, atualiza o indice */
+        }
+    }
+
+    printf("--- Maior Salario ---\n");
+    printf("Nome: %s | Salario: R$ %.2f\n", nomes[indiceMaior], salarios[indiceMaior]);
+}
+
+
+/* ==================================================================
+   A função soma todos os salarios cadastrados e divide pela
+   quantidade (qtd).
+   ================================================================== */
+void mediaSalarial(float salarios[], int qtd) {
+
+    if (qtd == 0) {
+        printf("Nenhum funcionario cadastrado ainda.\n");
+        return;
+    }
+
+    float soma = 0;
+    for (int i = 0; i < qtd; i++) {
+        soma += salarios[i];
+    }
+
+    printf("Media salarial: R$ %.2f\n", soma / qtd);
+}
